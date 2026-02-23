@@ -1,0 +1,770 @@
+{
+    "openapi": "3.0.4",
+    "info": {
+        "title": "Participium - OpenAPI 1.0",
+        "description": "Participium Server based.",
+        "termsOfService": "https://swagger.io/terms/",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.12"
+    },
+    "tags": [
+        {
+            "name": "Auth"
+        },
+        {
+            "name": "Users",
+            "description": "Operations about user"
+        },
+        {
+            "name": "Officers",
+            "description": "Office personnel"
+        },
+        {
+            "name": "Reports",
+            "description": "Reports Operation"
+        }
+    ],
+    "paths": {
+        "/auth/users": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logs user into the system.",
+                "description": "Log into the system.",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "username"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secure_word"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "password"
+                                ]
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "headers": {
+                            "X-Rate-Limit": {
+                                "description": "calls per hour allowed by the user",
+                                "schema": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            },
+                            "X-Expires-After": {
+                                "description": "date in UTC when token expires",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/xml": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid username/password supplied"
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/officers": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logs officers into the system.",
+                "description": "Log into the system.",
+                "operationId": "loginOfficer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "username"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secure_word"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "password"
+                                ]
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "headers": {
+                            "X-Rate-Limit": {
+                                "description": "calls per hour allowed by the user",
+                                "schema": {
+                                    "type": "integer",
+                                    "format": "int32"
+                                }
+                            },
+                            "X-Expires-After": {
+                                "description": "date in UTC when token expires",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "example" : "token"
+                                }
+                            },
+                                "application/xml": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "token"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid username/password supplied"
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create user.",
+                "description": "This can only be done by the logged in user.",
+                "operationId": "createUser",
+                "requestBody": {
+                    "description": "Created user object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/logout": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Logs out current logged in user session.",
+                "description": "Log user out of the system.",
+                "operationId": "logoutUser",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/officers": {
+            "post": {
+                "tags": [
+                    "Officers"
+                ],
+                "summary": "Admins create new Officer",
+                "operationId": "createOfficer",
+                "requestBody": {
+                    "description": "Created user object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Officer"
+                            }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Officer"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Officer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Officer"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Officer"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/officers/retrievedocs": {
+            "get": {
+                "tags": [
+                    "Officers"
+                ],
+                "summary": "Retrieve Reports assigned to him",
+                "description": "Using the session key, the officer is able to retrieve the docs assigned to him.",
+                "operationId": "retrieveDocs",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Report"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/officers/reviewdocs/{id_doc}": {
+            "patch": {
+                "tags": [
+                    "Officers"
+                ],
+                "summary": "Update Report assigned to him",
+                "operationId": "reviewDoc",
+                "parameters": [
+                    {
+                        "name": "id_doc",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Report"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Reports": {
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "User upload a new Report",
+                "operationId": "uploadReport",
+                "requestBody": {
+                    "description": "Created user object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Report"
+                            }
+                        },
+                        "application/xml": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Report"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Report"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Report"
+                                }
+                            },
+                            "application/xml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Report"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Retrieve all public Reports for map visualization",
+                "description": "Get all approved Reports to display on the public map",
+                "operationId": "getReports",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Report"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "OfficeType": {
+                "type": "string",
+                "enum": [
+                    "Office 1",
+                    "Office 2",
+                    "Office 3"
+                ]
+            },
+            "OfficerRole": {
+                "type": "string",
+                "enum": [
+                    "Role 1",
+                    "Role 2",
+                    "Role 3"
+                ]
+            },
+            "State" : {
+                "type": "string",
+                "enum": ["PENDING", "APPROVED", "DECLINED"]
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 2
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "username"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "example": "Mario"
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "example": "Rossi"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "placeholder"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "mail@domain.com"
+                    }
+                },
+                "xml": {
+                    "name": "user"
+                }
+            },
+            "Officer": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "surname": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "mail"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 6,
+                        "maxLength": 15
+                    },
+                    "Role": {
+                        "$ref": "#/components/schemas/OfficerRole"
+                    },
+                    "Office": {
+                        "$ref": "#/components/schemas/OfficeType"
+                    }
+                }
+            },
+            "Location": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "Coordinates": {
+                        "type": "object",
+                        "properties": {
+                            "longitude": {
+                                "type": "number"
+                            },
+                            "latitude": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
+            },
+            "Report": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "$ref": "#/components/schemas/Location"
+                    },
+                    "Author": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "Anonymity": {
+                        "type": "boolean"
+                    },
+                    "Date": {
+                        "type": "string"
+                    },
+                    "Category": {
+                        "$ref": "#/components/schemas/OfficeType"
+                    },
+                    "Document": {
+                        "type": "object",
+                        "properties": {
+                            "Description": {
+                                "type": "string",
+                                "minLength": 150,
+                                "example": "the water is clear"
+                            },
+                            "Photos": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1,
+                                "maxItems": 3
+                            }
+                        }
+                    }
+                }
+            },
+            "ReportState": {
+                "type": "object",
+                "properties": {
+                    "Report": {
+                        "$ref": "#/components/schemas/Report"
+                    },
+                    "Approved": {
+                        "$ref" : "#/components/schemas/State"
+                    },
+                    "Reason": {
+                        "type": "string",
+                        "minLength": 30,
+                        "example": "Message for only denied Reports."
+                    },
+                    "Officer": {
+                        "$ref": "#/components/schemas/Officer"
+                    }
+                }
+            },
+            "ApiResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "xml": {
+                    "name": "##default"
+                }
+            },
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "message"
+                ]
+            }
+        },
+        "requestBodies": {
+            "UserArray": {
+                "description": "List of user object",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "petstore_auth": {
+                "type": "oauth2",
+                "flows": {
+                    "implicit": {
+                        "authorizationUrl": "https://petstore3.swagger.io/oauth/authorize",
+                        "scopes": {
+                            "write:pets": "modify pets in your account",
+                            "read:pets": "read your pets"
+                        }
+                    }
+                }
+            },
+            "api_key": {
+                "type": "apiKey",
+                "name": "api_key",
+                "in": "header"
+            }
+        }
+    }
+}

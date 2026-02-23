@@ -1,0 +1,9 @@
+# Playwright test artifacts
+/test-results/
+/playwright-report/
+/playwright/.cache/
+test-results.json
+
+# Screenshots and videos
+*.png
+*.webm

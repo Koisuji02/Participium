@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - participium-network
+
+  server:
+    image: shuba19/participium_g16:server
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DB_TYPE=sqlite
+      - DB_NAME=/usr/src/app/participium.db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=CHANGE_ME_IN_PRODUCTION
+      - REDIS_CONNECT_TIMEOUT=30000
+    ports:
+      - "5000:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./server/uploads:/usr/src/app/uploads
+    restart: unless-stopped
+    networks:
+      - participium-network
+
+  telegram:
+    image: shuba19/participium_g16:telegram
+    environment:
+      - SERVER_URL=http://server:5000
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - participium-network
+
+  client:
+    image: shuba19/participium_g16:client
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    ports:
+      - "5173:5173"
+    networks:
+      - participium-network
+
+volumes:
+  redis-data:
+
+networks:
+  participium-network:
+    driver: bridge

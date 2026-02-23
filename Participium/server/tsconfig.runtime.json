@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./dist/src",
+    "paths": {
+      "@config": ["config/config"],
+      "@database": ["database/connection"],
+      "@dao/*": ["models/dao/*"],
+      "@dto/*": ["models/dto/*"],
+      "@models/*": ["models/*"],
+      "@repositories/*": ["repositories/*"],
+      "@controllers/*": ["controllers/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@utils/*": ["utils/*"],
+      "@app": ["app"]
+    }
+  }
+}

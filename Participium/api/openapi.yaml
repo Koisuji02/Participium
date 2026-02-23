@@ -1,0 +1,1915 @@
+openapi: 3.0.4
+info:
+  title: Participium - OpenAPI 1.0
+  description: Participium Server based.
+  termsOfService: https://swagger.io/terms/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.12
+tags:
+  - name: Auth
+  - name: Admin
+    description: Admin operations
+  - name: Public Relation Officer
+    description: Public relation operations
+  - name: Technical Officers
+    description: Office personnel
+  - name: Maintainers
+    description: External maintainers
+  - name: Users
+    description: Operations about user
+  - name: Reports
+    description: Reports Operation
+  - name: Telegram
+  - name: Notifications
+  - name: Internal Messages
+    description: Internal messaging between officers and maintainers
+  - name: Info
+paths:
+  /auth/users:
+    post:
+      tags:
+        - Auth
+      summary: Logs user into the system.
+      description: Log into the system.
+      operationId: loginUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: username
+                password:
+                  type: string
+                  format: password
+                  example: secure_word
+              required:
+                - username
+                - password
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        "200":
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Invalid username/password supplied
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /maintainers:
+      post:
+        tags:
+          - Admin
+        summary: Admin creates a maintainer
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  password:
+                    type: string
+                  categories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/OfficeType"
+                  active:
+                    type: boolean
+                required:
+                  - name
+                  - email
+                  - password
+                  - categories
+        responses:
+          "200":
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Maintainer"
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+      get:
+        tags:
+          - Maintainers
+        summary: Officers lists all maintainers
+        responses:
+          "200":
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Maintainer"
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+  /maintainers/by-category/{officeType}:
+      get:
+        tags:
+          - Maintainers
+        summary: List maintainers by office type
+        parameters:
+          - in: path
+            name: officeType
+            required: true
+            schema:
+              $ref: "#/components/schemas/OfficeType"
+        responses:
+          "200":
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Maintainer"
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+  /maintainers/{id}:
+      patch:
+        tags:
+          - Admin
+        summary: Admin updates a maintainer
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: integer
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Maintainer"
+        responses:
+          "200":
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Maintainer"
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+      delete:
+        tags:
+          - Admin
+        summary: Admin deletes a maintainer
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200":
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Maintainer with id '1' deleted successfully"
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+  /officers/assign-report:
+      post:
+        tags:
+          - Technical Officers
+        summary: Assign a report to a maintainer
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportId:
+                    type: integer
+                  maintainerId:
+                    type: integer
+                required:
+                  - reportId
+                  - maintainerId
+        responses:
+          "200":
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+          default:
+            description: Unexpected error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Error"
+  /auth/officers:
+    post:
+      tags:
+        - Auth
+      summary: Logs officers into the system.
+      description: Log into the system.
+      operationId: loginOfficer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: username
+                password:
+                  type: string
+                  format: password
+                  example: secure_word
+              required:
+                - username
+                - password
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        "200":
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                type: string
+                example: token
+            application/xml:
+              schema:
+                type: string
+                example: token
+        "400":
+          description: Invalid username/password supplied
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  
+  
+  /auth/maintainers:
+    post:
+      tags:
+        - Auth
+      summary: Logs maintainer into the system.
+      description: Log into the system.
+      operationId: loginMaintainer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: maintainer@example.com
+                password:
+                  type: string
+                  format: password
+                  example: secure_word
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string    
+      responses:
+        "200":
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        "401":
+          description: Invalid email/password supplied
+        default:
+          description: Unexpected error
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                
+  /maintainers/assigned:
+    get:
+      tags:
+        - Maintainers
+      summary: Maintainer retrieves assigned reports
+      description: Returns all reports assigned to the authenticated maintainer.
+      operationId: getAssignedReportsMaintainer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /maintainers/reports/{id}/status:
+    patch:
+      tags:
+        - Maintainers
+      summary: Maintainer updates the status of an assigned report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  $ref: "#/components/schemas/State"
+                reason:
+                  type: string
+              required:
+                - state
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  state:
+                    $ref: "#/components/schemas/State"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /info-types:
+    get:
+      tags:
+        - Info
+      description: "Information about Office"
+      responses:
+        "200":
+          description: Desc
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  OfficeType:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/OfficeType"
+                  OfficerRole:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/OfficerRole"
+                  ReportStates:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/State"
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create user.
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/User"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/generateotp:
+    post:
+      tags:
+        - Users
+      summary: Generate OTP for user
+      description: Generate a One-Time Password (OTP) for the user to enhance security during sensitive operations.
+      operationId: generateOtp
+      requestBody:
+        description: User information for OTP generation
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+              required:
+                - email
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  otp:
+                    type: string
+                    example: "123456"
+        "403":
+          description: Account is already active
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Account is already active"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"    
+
+
+  /users/verifyotp:
+    post:
+      tags:
+        - Users
+      summary: Verify OTP for user
+      description: Verify the One-Time Password (OTP) provided by the user to confirm their identity.
+      operationId: verifyOtp
+      requestBody:
+        description: User information for OTP verification
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                otp:
+                  type: string
+                  example: "123456"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                    example: true
+        "401":
+          description: Invalid or expired OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid or expired OTP"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Retrieve authenticated user's profile
+      description: Returns the profile of the authenticated user (avatar, telegramUsername, emailNotifications included) + if requested the followedReports
+      operationId: getMyProfile
+      parameters:
+        - name: include
+          in: query
+          description: >
+            Campi aggiuntivi da includere (lista comma-separated).
+            Supportati: `followedReports`.
+          required: false
+          schema:
+            type: string
+          style: form
+          explode: false
+          example: followedReports
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                base:
+                  summary: without include
+                  value:
+                    id: 123
+                    email: "user@example.com"
+                    name: "Mario Rossi"
+                withFollowedReports:
+                  summary: with include=followedReports
+                  value:
+                    id: 123
+                    email: "user@example.com"
+                    name: "Mario Rossi"
+                    followedReports:
+                      - id: 42
+                        title: "Buche in via Roma"
+                        state: "IN_PROGRESS"
+                      - id: 77
+                        title: "Illuminazione guasta"
+                        state: "PENDING"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    patch:
+      tags:
+        - Users
+      summary: Update authenticated user's profile
+      description: Update telegram username, email notification preference and optionally upload an avatar image.
+      operationId: updateMyProfile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                telegramUsername:
+                  type: string
+                emailNotifications:
+                  type: boolean
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/logout:
+    get:
+      tags:
+        - Users
+      summary: Logs out current logged in user session.
+      description: Log user out of the system.
+      operationId: logoutUser
+      parameters: []
+      responses:
+        "200":
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /officers:
+    post:
+      tags:
+        - Admin
+      summary: Admins create new Officer
+      operationId: createOfficer
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Officer"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Officer"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Officer"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Officer"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/Officer"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - Admin
+      summary: Admin lists all officers
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Officer"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /officers/{id}:
+    patch:
+      tags:
+        - Admin
+      summary: Admin updates officer info
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Officer"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Officer"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Admin
+      summary: Admin deletes an officer
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Officer with id '1' deleted successfully"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /publics/retrievedocs:
+    get:
+      tags:
+        - Public Relation Officer
+      summary: Retrieve Reports assigned to him, only the pending ones
+      description: Using the session key, the officer is able to retrieve the docs assigned to him.
+      operationId: retrieveDocs
+      parameters: []
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /officers/assigned:
+    get:
+      tags:
+        - Technical Officers
+      summary: Retrieve reports assigned to the authenticated officer
+      description: Returns all reports whose `assignedOfficerId` equals the authenticated officer id.
+      operationId: getAssignedReports
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /officers/OfficerByOfficeType/{officeType}:
+    get:
+      tags:
+        - Technical Officers
+      summary: Retrieve reports assigned to the authenticated officer
+      description: Only for admin or Public officers.
+      operationId: getOfficerByOfficeType
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Officer"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /officers/reviewdocs/{id_doc}:
+    patch:
+      tags:
+        - Technical Officers
+      summary: Update Report assigned to him
+      operationId: reviewDoc
+      parameters:
+        - name: id_doc
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Review doc assigned to Officer
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  $ref: "#/components/schemas/State"
+                reason:
+                  type: string
+                  example: "Insufficient evidence"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /publics/assign-report:
+    post:
+      tags:
+        - Public Relation Officer
+      summary: Public Relation Officer assign new document to an officer
+      operationId: assignReport
+      requestBody:
+        description: Assign report to Officer
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                reportId:
+                  type: integer
+                  example: 1023
+                officerId:
+                  type: integer
+                  example: 652
+
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportState"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ReportState"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reports:
+    post:
+      tags:
+        - Reports
+      summary: User upload a new Report
+      operationId: uploadReport
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Report"
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Report"
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/Report"
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      tags:
+        - Reports
+      summary: Retrieve all public Reports for map visualization
+      description: Get all approved Reports to display on the public map
+      operationId: getReports
+      parameters: []
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reports/stats:
+    get:
+      tags:
+        - Reports
+      summary: Get reports statistics
+      description: Retrieve various statistics about reports in the system. The filters can be applied using query parameters.
+        Available filters include date range (`fromDate`, `toDate`), predefined periods (`period`), and report categories (`category`).
+        For multiple categories use multiple `category` parameters, e.g., `category=sanification&category=infrastructure`.
+      parameters:
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date-time
+          required: false
+          description: Start date for filtering reports (inclusive)
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date-time
+          required: false
+          description: End date for filtering reports (inclusive)
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [daily, weekly, monthly, yearly]
+          required: false
+          description: Predefined period for filtering reports
+        - in: query
+          name: category
+          schema:
+              $ref: "#/components/schemas/OfficeType"
+          required: false
+          description: Filter reports by their state
+          
+      operationId: getReportStats
+      
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistics"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/telegram:
+    post:
+      tags:
+        - Auth
+      summary: Retrieve user account associated with Telegram username
+      description: Given a Telegram username, retrieve the corresponding user account from the system.
+      operationId: retrieveTelegramAccount
+      requestBody:
+        description: Telegram username
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: telegram_user
+              required:
+                - username
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: user_token
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+                 
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: List user notifications
+      description: Returns notifications for the authenticated user. Use query param unreadOnly=true to filter unread.
+      parameters:
+        - in: query
+          name: unreadOnly
+          schema:
+            type: boolean
+          required: false
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /notifications/{id}/read:
+    patch:
+      tags:
+        - Notifications
+      summary: Mark notification as read
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  read:
+                    type: boolean
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reports/{id}/message:
+    post:
+      tags:
+        - Reports
+      summary: Officer sends a message to report author
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Aggiornamento sul tuo report"
+              required:
+                - message
+      responses:
+        "201":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/role/add:
+    patch:
+      tags:
+        - Admin
+      summary: Admin updates officer roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                officerId:
+                  type: integer
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      officerRole:
+                        $ref: '#/components/schemas/OfficerRole'
+                      officeType:
+                        $ref: '#/components/schemas/OfficeType'
+              required:
+                - officerId
+                - roles
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Officer"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /admin/role/remove:
+    patch:
+      tags:
+        - Admin
+      summary: Admin updates officer roles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                officerId:
+                  type: integer
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      officerRole:
+                        $ref: '#/components/schemas/OfficerRole'
+                      officeType:
+                        $ref: '#/components/schemas/OfficeType'
+              required:
+                - officerId
+                - roles
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Officer"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /internal-messages:
+    post:
+      tags:
+        - Internal Messages
+      summary: Send an internal message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reportId:
+                  type: integer
+                receiverType:
+                  $ref: "#/components/schemas/OfficerRole"
+                receiverId:
+                  type: integer
+                message:
+                  type: string
+              required:
+                - reportId
+                - receiverType
+                - receiverId
+                - message
+      responses:
+        "201":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    $ref: "#/components/schemas/InternalMessage"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /internal-messages/report/{reportId}:
+    get:
+      tags:
+        - Internal Messages
+      summary: List internal messages for a report
+      parameters:
+        - in: path
+          name: reportId
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InternalMessage"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reports/{id}/followers:
+    get:
+      tags:
+        - Reports
+      summary: List users following a report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reports/{id}/follow:
+    post:
+      tags:
+        - Reports
+      summary: Follow a report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: follow relation created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Follow"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Reports
+      summary: Unfollow a report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: follow relation deleted
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /telegram/reports:
+    get:
+      tags:
+        - Telegram
+      summary: Get reports for Telegram notifications
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - Telegram
+      summary: Update reports for Telegram notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reportIds:
+                  type: array
+                  items:
+                    type: integer
+              required:
+                - reportIds
+      responses:
+        "200":
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /telegram/reports/{reportID}:
+    post:
+      tags:
+        - Telegram
+      summary: Add a report to Telegram notifications
+      parameters:
+        - in: path
+          name: reportID
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Telegram
+      summary: Remove a report from Telegram notifications
+      parameters:
+        - in: path
+          name: reportID
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  
+  /faqs:
+    get:
+      tags:
+        - Faq
+      summary: Get FAQ entries
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    question:
+                      type: string
+                    answer:
+                      type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - Faq
+      summary: Add a new FAQ entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                answer:
+                  type: string
+              required:
+                - question
+                - answer
+      responses:
+        "201":
+          description: FAQ entry created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  question:
+                    type: string
+                  answer:
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /faqs/{idFaq}:
+    patch:
+      tags:
+        - Faq
+      summary: Update a FAQ entry
+      parameters:
+        - in: path
+          name: idFaq
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                answer:
+                  type: string
+      responses:
+        "200":
+          description: FAQ entry updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  question:
+                    type: string
+                  answer:
+                    type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags:
+        - Faq
+      summary: Delete a FAQ entry
+      parameters:
+        - in: path
+          name: idFaq
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: FAQ entry deleted
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/me/followed-reports:
+    get:
+      tags:
+        - Users
+      summary: Get reports followed by current user
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    OfficeType:
+      type: string
+      enum: [ "infrastructure", "environment","safety", "sanitation","transport","organization","other"]
+    OfficerRole:
+      type: string
+      enum: ["municipal_public_relations_officer", "municipal_administrator","technical_office_staff"]
+    State:
+      type: string
+      enum: [PENDING, ASSIGNED, IN_PROGRESS, SUSPENDED, REJECTED, RESOLVED]
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 2
+        username:
+          type: string
+          example: username
+        firstName:
+          type: string
+          example: Mario
+        lastName:
+          type: string
+          example: Rossi
+        password:
+          type: string
+          example: placeholder
+        email:
+          type: string
+          example: mail@domain.com
+        avatar:
+          type: string
+          example: /uploads/avatars/167123123-avatar.jpg
+        telegramUsername:
+          type: string
+          example: my_telegram
+        emailNotifications:
+          type: boolean
+          example: true
+        followedReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/Report"
+      xml:
+        name: user
+    Officer:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+        roles:  # Array invece di singolo
+          type: array
+          items:
+            type: object
+            properties:
+              officerRole:
+                $ref: '#/components/schemas/OfficerRole'
+              officeType:
+                $ref: '#/components/schemas/OfficeType'
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        Coordinates:
+          type: object
+          properties:
+            longitude:
+              type: number
+            latitude:
+              type: number
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        location:
+          $ref: "#/components/schemas/Location"
+        Author:
+          $ref: "#/components/schemas/User"
+        Anonymity:
+          type: boolean
+        Date:
+          type: string
+        Category:
+          $ref: "#/components/schemas/OfficeType"
+        Document:
+          type: object
+          properties:
+            Description:
+              type: string
+              minLength: 150
+              example: the water is clear
+            Photos:
+              type: array
+              items:
+                type: string
+              minItems: 1
+              maxItems: 3
+        assignedMaintainerId:
+          type: integer
+          nullable: true
+        followerUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+    ReportState:
+      type: object
+      properties:
+        Report:
+          $ref: "#/components/schemas/Report"
+        Approved:
+          $ref: "#/components/schemas/State"
+        Reason:
+          type: string
+          minLength: 30
+          example: Message for only denied Reports.
+        Officer:
+          $ref: "#/components/schemas/Officer"
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        reportId:
+          type: integer
+        type:
+          type: string
+          enum:
+            - STATUS_CHANGE
+            - OFFICER_MESSAGE
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+    Maintainer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/OfficeType"
+        active:
+          type: boolean
+    InternalMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        reportId:
+          type: integer
+        senderType:
+            $ref: "#/components/schemas/OfficerRole"
+        senderId:
+            type: integer
+        receiverType:
+            $ref: "#/components/schemas/OfficerRole"
+        receiverId:
+            type: integer
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Follow:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        reportId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    Statistics:
+      type: array
+      items:
+        type: object
+        properties:
+          date:
+            type: string
+          totalReports:
+            type: integer
+          approvedReports:
+            type: integer
+          rejectedReports:
+            type: integer
+
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: "##default"
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+  requestBodies:
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/User"
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

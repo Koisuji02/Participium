@@ -1,0 +1,7 @@
+{
+    "editor.fontSize": 12,
+    "sonarlint.connectedMode.project": {
+        "connectionId": "group16-soft-eng",
+        "projectKey": "Group16-Soft-Eng_Participium"
+    }
+}

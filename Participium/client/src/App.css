@@ -1,0 +1,84 @@
+#root {
+  /* allow the app to use the full viewport width — remove the fixed max width
+     so pages (like the map) can go full-bleed when Container is set to
+     maxWidth={false} in App.tsx */
+  max-width: 100%;
+  margin: 0;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: #f0f3f5;
+}
+
+/* Header / brand styles */
+.app-bar {
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(4px);
+}
+
+.app-logo svg {
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.MuiToolbar-root {
+  min-height: 64px;
+}
+
+.nav-link {
+  color: #333;
+  text-decoration: none;
+}
+
+.brand-highlight {
+  color: #1976d2;
+  font-weight: 700;
+}
+
+.alert {
+  z-index: 9999;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 60px;
+  width: fit-content;
+  height: fit-content;
+  margin: 0;
+  opacity: 0;
+  animation: fadeInOut 3s;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.flex-mobile {
+  display: flex;
+}
+
+@media screen and (max-width: 600px) {
+
+  #app-title,
+  #map-button,
+  #report-button,
+  #user-display-name {
+    display: none;
+  }
+}

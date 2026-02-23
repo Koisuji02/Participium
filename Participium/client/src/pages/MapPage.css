@@ -1,0 +1,9 @@
+@media only screen and (max-width: 900px) {
+    .map-box {
+        max-height: 50vh;
+        overflow: scroll;
+    }
+    .map-container-box {
+        max-height: 50vh;
+    }
+}
