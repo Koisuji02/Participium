@@ -126,7 +126,8 @@ id_notification_handler = ConversationHandler(
 async def post_init(application: Application) -> None:
     await load_categories()
 
-app = Application.builder().token("7796981555:AAFAU2xf7n6f-BihJhw5bjXo3H--_fzgwGg").post_init(post_init).build()
+# TODO: Replace "YOUR_TOKEN" with your actual bot token
+app = Application.builder().token("YOUR_TOKEN").post_init(post_init).build()
 
 def on_error(update, context):
     print(f"Error: {context.error}")

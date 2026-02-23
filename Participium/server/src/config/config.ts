@@ -39,8 +39,9 @@ export const CONFIG = {
     ALLOW_SELF_SIGNED: false
   },
 
+  // TODO: Replace "YOUR_TOKEN" with your actual bot token
   TELEGRAM_CONFIG : {
-    TOKEN : "7796981555:AAFAU2xf7n6f-BihJhw5bjXo3H--_fzgwGg"
+    TOKEN : "YOUR_TOKEN"
   },
 
   ROUTES: {
